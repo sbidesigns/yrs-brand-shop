@@ -1463,7 +1463,7 @@ body.live-edit-active #app > .page { padding-bottom: 60px; }
 }
 .le-sd-item.le-sd-current {
   cursor: default;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 .le-sd-item.le-sd-current:hover {
   background: transparent;
@@ -1502,6 +1502,14 @@ body.live-edit-active #app > .page { padding-bottom: 60px; }
 .le-sd-badge-active {
   background: rgba(80,255,120,0.1);
   color: rgba(120,255,150,0.7);
+}
+.le-sd-empty {
+  padding: 14px;
+  font-size: 0.5rem;
+  color: rgba(255,255,255,0.25);
+  text-align: center;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 /* ── Live Edit: Inline Add-Section Dividers ── */

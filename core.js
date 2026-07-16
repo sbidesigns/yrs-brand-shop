@@ -565,8 +565,12 @@ App.register('liveEdit', (() => {
   function _switchSection(page, currentSecId, newSecId) {
     if (currentSecId === newSecId) return;
     const data = App.use('data');
+    /* Remove the current section */
     data.toggleSection(page, currentSecId);
-    data.toggleSection(page, newSecId);
+    /* Only toggle the new section ON if it's currently off */
+    if (!data.isSection(page, newSecId)) {
+      data.toggleSection(page, newSecId);
+    }
     if (SEC_TO_ORDER[page]) {
       var curOrderId = SEC_TO_ORDER[page][currentSecId];
       var newOrderId = SEC_TO_ORDER[page][newSecId];
@@ -574,10 +578,18 @@ App.register('liveEdit', (() => {
         var order = (data.getSectionOrder(page) || []).slice();
         var idx = order.indexOf(curOrderId);
         if (idx !== -1) {
+          /* Replace current with new in position */
           order[idx] = newOrderId;
+          /* Remove duplicate if new was already in order elsewhere */
           var dupIdx = order.indexOf(newOrderId);
           if (dupIdx !== -1 && dupIdx !== idx) order.splice(dupIdx, 1);
           data.setSectionOrder(page, order);
+        } else if (newOrderId) {
+          /* Current wasn't in order, just append new */
+          if (order.indexOf(newOrderId) === -1) {
+            order.push(newOrderId);
+            data.setSectionOrder(page, order);
+          }
         }
       }
     }
@@ -602,10 +614,13 @@ App.register('liveEdit', (() => {
     options.forEach(function(opt) {
       var isCurrent = opt.id === currentSecId;
       var isActive = App.use('data').isSection(page, opt.id);
-      var cls = 'le-sd-item' + (isCurrent ? ' le-sd-current' : '') + (!isActive && !isCurrent ? ' le-sd-inactive' : '');
+      var cls = 'le-sd-item';
+      if (isCurrent) cls += ' le-sd-current';
       html += '<div class="' + cls + '" data-le-switch-to="' + opt.id + '">'
         + '<span class="le-sd-item-name">' + opt.label + '</span>'
-        + (isCurrent ? '<span class="le-sd-item-badge">Current</span>' : (!isActive ? '<span class="le-sd-item-badge le-sd-badge-hidden">Hidden</span>' : ''))
+        + (isCurrent ? '<span class="le-sd-item-badge">Current</span>'
+          : (!isActive ? '<span class="le-sd-item-badge le-sd-badge-hidden">Hidden</span>'
+            : '<span class="le-sd-item-badge le-sd-badge-active">Active</span>'))
         + '</div>';
     });
     dd.innerHTML = html;
@@ -615,10 +630,12 @@ App.register('liveEdit', (() => {
         e.stopPropagation();
         var toId = item.dataset.leSwitchTo;
         if (!App.use('data').isSection(page, toId)) {
+          /* Hidden section — just add it back */
           _addSectionBack(page, toId);
           _closeDropdown();
           return;
         }
+        /* Already-active section — swap positions: remove current, place new here */
         _switchSection(page, currentSecId, toId);
       });
     });
@@ -642,14 +659,25 @@ App.register('liveEdit', (() => {
     var allSections = SEC_SWITCH_MAP[page] || [];
     var data = App.use('data');
     var html = '<div class="le-sd-title">Add Section</div>';
+    var hasAvailable = false;
     allSections.forEach(function(opt) {
       var isActive = data.isSection(page, opt.id);
-      var cls = 'le-sd-item' + (isActive ? ' le-sd-inactive' : '');
-      html += '<div class="' + cls + '" data-le-switch-to="' + opt.id + '">'
-        + '<span class="le-sd-item-name">' + opt.label + '</span>'
-        + (isActive ? '<span class="le-sd-item-badge le-sd-badge-active">Visible</span>' : '<span class="le-sd-item-badge">Add</span>')
-        + '</div>';
+      if (isActive) {
+        html += '<div class="le-sd-item le-sd-inactive">'
+          + '<span class="le-sd-item-name">' + opt.label + '</span>'
+          + '<span class="le-sd-item-badge le-sd-badge-active">Active</span>'
+          + '</div>';
+      } else {
+        hasAvailable = true;
+        html += '<div class="le-sd-item" data-le-switch-to="' + opt.id + '">'
+          + '<span class="le-sd-item-name">' + opt.label + '</span>'
+          + '<span class="le-sd-item-badge">Add</span>'
+          + '</div>';
+      }
     });
+    if (!hasAvailable) {
+      html += '<div class="le-sd-empty">All sections are active</div>';
+    }
     dd.innerHTML = html;
     dd.addEventListener('click', function(e) { e.stopPropagation(); });
     dd.querySelectorAll('.le-sd-item:not(.le-sd-inactive)').forEach(function(item) {
