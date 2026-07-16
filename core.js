@@ -378,9 +378,8 @@ App.register('liveEdit', (() => {
   let _active = false;
   let _toolbar = null;
   let _appHandler = null;
-  let _addPanel = null;
-  let _addToggle = null;
-  let _panelCloseHandler = null;
+  let _openDropdown = null;
+  let _dropdownCloseHandler = null;
 
   /* Human-readable section labels */
   const SEC_LABELS = {
@@ -434,8 +433,39 @@ App.register('liveEdit', (() => {
     shop: { categories: 'categories', featured: 'featured', products: 'products', carousel: 'carousels', mailing: 'mailing' }
   };
 
+  /* All available section types per page (for switching) */
+  const SEC_SWITCH_MAP = {
+    shop: [
+      { id: 'hero', label: 'Hero' },
+      { id: 'categories', label: 'Categories' },
+      { id: 'featured', label: 'Featured Strip' },
+      { id: 'products', label: 'Products' },
+      { id: 'carousel', label: 'Carousel' },
+      { id: 'mailing', label: 'Mailing List' }
+    ],
+    product: [
+      { id: 'breadcrumb', label: 'Breadcrumb' },
+      { id: 'image', label: 'Product Image' },
+      { id: 'info', label: 'Product Info' },
+      { id: 'share', label: 'Share' },
+      { id: 'wishlist', label: 'Wishlist' },
+      { id: 'upsell', label: 'Upsell' },
+      { id: 'related', label: 'Related Products' }
+    ],
+    cart: [
+      { id: 'items', label: 'Cart Items' },
+      { id: 'upsells', label: 'Checkout Upsells' },
+      { id: 'total', label: 'Cart Total' },
+      { id: 'checkout', label: 'Checkout Button' }
+    ],
+    wishlist: [
+      { id: 'items', label: 'Wishlist Items' },
+      { id: 'actions', label: 'Wishlist Actions' }
+    ]
+  };
+
   function _detectPage() {
-    const h = location.hash.replace(/^#\/?/, '');
+    const h = location.hash.replace(/^#\//, '');
     if (h === '' || h === 'shop') return 'shop';
     if (h.startsWith('product/')) return 'product';
     if (h === 'cart') return 'cart';
@@ -473,7 +503,7 @@ App.register('liveEdit', (() => {
 
   function _handleClick(e) {
     if (!_active) return;
-    if (e.target.closest('.le-section-badge') || e.target.closest('.le-add-panel') || e.target.closest('.le-add-toggle')) return;
+    if (e.target.closest('.le-section-badge') || e.target.closest('.le-add-panel') || e.target.closest('.le-add-toggle') || e.target.closest('.le-divider') || e.target.closest('.le-switch-dropdown') || e.target.closest('.le-hidden-bar')) return;
     let target = e.target.closest('[data-edit-key]');
     if (!target) {
       const t = e.target;
@@ -512,20 +542,134 @@ App.register('liveEdit', (() => {
     App.use('router').navigate(location.hash.replace('#', '') || '/shop');
   }
 
-  function _addSectionBack(page, sectionId) {
+  function _addSectionBack(page, sectionId, insertIdx) {
     const data = App.use('data');
     data.toggleSection(page, sectionId);
     if (SEC_TO_ORDER[page]) {
       var orderId = SEC_TO_ORDER[page][sectionId];
       if (orderId) {
-        var order = data.getSectionOrder(page) || [];
+        var order = (data.getSectionOrder(page) || []).slice();
         if (order.indexOf(orderId) === -1) {
-          order = order.concat([orderId]);
+          if (typeof insertIdx === 'number' && insertIdx >= 0 && insertIdx <= order.length) {
+            order.splice(insertIdx, 0, orderId);
+          } else {
+            order.push(orderId);
+          }
           data.setSectionOrder(page, order);
         }
       }
     }
     App.use('router').navigate(location.hash.replace('#', '') || '/shop');
+  }
+
+  function _switchSection(page, currentSecId, newSecId) {
+    if (currentSecId === newSecId) return;
+    const data = App.use('data');
+    data.toggleSection(page, currentSecId);
+    data.toggleSection(page, newSecId);
+    if (SEC_TO_ORDER[page]) {
+      var curOrderId = SEC_TO_ORDER[page][currentSecId];
+      var newOrderId = SEC_TO_ORDER[page][newSecId];
+      if (curOrderId && newOrderId) {
+        var order = (data.getSectionOrder(page) || []).slice();
+        var idx = order.indexOf(curOrderId);
+        if (idx !== -1) {
+          order[idx] = newOrderId;
+          var dupIdx = order.indexOf(newOrderId);
+          if (dupIdx !== -1 && dupIdx !== idx) order.splice(dupIdx, 1);
+          data.setSectionOrder(page, order);
+        }
+      }
+    }
+    _closeDropdown();
+    App.use('router').navigate(location.hash.replace('#', '') || '/shop');
+  }
+
+  function _closeDropdown() {
+    if (_openDropdown) { _openDropdown.remove(); _openDropdown = null; }
+    if (_dropdownCloseHandler) {
+      document.removeEventListener('click', _dropdownCloseHandler);
+      _dropdownCloseHandler = null;
+    }
+  }
+
+  function _openSwitchDropdown(nameEl, page, currentSecId) {
+    _closeDropdown();
+    var dd = document.createElement('div');
+    dd.className = 'le-switch-dropdown';
+    var options = SEC_SWITCH_MAP[page] || [];
+    var html = '<div class="le-sd-title">Switch Section Type</div>';
+    options.forEach(function(opt) {
+      var isCurrent = opt.id === currentSecId;
+      var isActive = App.use('data').isSection(page, opt.id);
+      var cls = 'le-sd-item' + (isCurrent ? ' le-sd-current' : '') + (!isActive && !isCurrent ? ' le-sd-inactive' : '');
+      html += '<div class="' + cls + '" data-le-switch-to="' + opt.id + '">'
+        + '<span class="le-sd-item-name">' + opt.label + '</span>'
+        + (isCurrent ? '<span class="le-sd-item-badge">Current</span>' : (!isActive ? '<span class="le-sd-item-badge le-sd-badge-hidden">Hidden</span>' : ''))
+        + '</div>';
+    });
+    dd.innerHTML = html;
+    dd.addEventListener('click', function(e) { e.stopPropagation(); });
+    dd.querySelectorAll('.le-sd-item:not(.le-sd-current)').forEach(function(item) {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var toId = item.dataset.leSwitchTo;
+        if (!App.use('data').isSection(page, toId)) {
+          _addSectionBack(page, toId);
+          _closeDropdown();
+          return;
+        }
+        _switchSection(page, currentSecId, toId);
+      });
+    });
+    var rect = nameEl.getBoundingClientRect();
+    dd.style.top = (rect.bottom + 4) + 'px';
+    dd.style.left = rect.left + 'px';
+    document.body.appendChild(dd);
+    _openDropdown = dd;
+    _dropdownCloseHandler = function(ev) {
+      if (!_openDropdown || (!_openDropdown.contains(ev.target) && !nameEl.contains(ev.target))) {
+        _closeDropdown();
+      }
+    };
+    setTimeout(function() { document.addEventListener('click', _dropdownCloseHandler); }, 0);
+  }
+
+  function _openDividerMenu(btn, page, insertIdx) {
+    _closeDropdown();
+    var dd = document.createElement('div');
+    dd.className = 'le-switch-dropdown le-divider-menu';
+    var allSections = SEC_SWITCH_MAP[page] || [];
+    var data = App.use('data');
+    var html = '<div class="le-sd-title">Add Section</div>';
+    allSections.forEach(function(opt) {
+      var isActive = data.isSection(page, opt.id);
+      var cls = 'le-sd-item' + (isActive ? ' le-sd-inactive' : '');
+      html += '<div class="' + cls + '" data-le-switch-to="' + opt.id + '">'
+        + '<span class="le-sd-item-name">' + opt.label + '</span>'
+        + (isActive ? '<span class="le-sd-item-badge le-sd-badge-active">Visible</span>' : '<span class="le-sd-item-badge">Add</span>')
+        + '</div>';
+    });
+    dd.innerHTML = html;
+    dd.addEventListener('click', function(e) { e.stopPropagation(); });
+    dd.querySelectorAll('.le-sd-item:not(.le-sd-inactive)').forEach(function(item) {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        _addSectionBack(page, item.dataset.leSwitchTo, insertIdx);
+        _closeDropdown();
+      });
+    });
+    var rect = btn.getBoundingClientRect();
+    dd.style.top = (rect.bottom + 6) + 'px';
+    dd.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - 220)) + 'px';
+    document.body.appendChild(dd);
+    _openDropdown = dd;
+    _dropdownCloseHandler = function(ev) {
+      if (!_openDropdown || (!_openDropdown.contains(ev.target) && !btn.contains(ev.target))) {
+        _closeDropdown();
+      }
+    };
+    setTimeout(function() { document.addEventListener('click', _dropdownCloseHandler); }, 0);
   }
 
   return {
@@ -553,7 +697,7 @@ App.register('liveEdit', (() => {
       if (_appHandler && document.getElementById('app')) document.getElementById('app').removeEventListener('click', _appHandler);
       _appHandler = null;
       this._removeOverlays();
-      this._removeAddPanel();
+      _closeDropdown();
     },
     updatePage() {
       const el = document.querySelector('#lePage');
@@ -562,24 +706,71 @@ App.register('liveEdit', (() => {
     },
     _renderSectionOverlays() {
       this._removeOverlays();
-      this._removeAddPanel();
+      _closeDropdown();
       var page = _detectPage();
       if (!page) return;
       var app = document.getElementById('app');
       if (!app) return;
+      var pageEl = app.querySelector('.page');
+      if (!pageEl) return;
       var sections = SEC_MAP[page];
       if (!sections) return;
       var data = App.use('data');
       var hasOrder = !!data.getSectionOrder(page);
+      var visibleSections = [];
+      var hiddenSections = [];
 
       sections.forEach(function(sec) {
         var el = sec.find(app);
+        if (!data.isSection(page, sec.id)) {
+          hiddenSections.push(sec);
+          return;
+        }
         if (!el) return;
+        visibleSections.push({ sec: sec, el: el });
+      });
+
+      /* Insert add-section dividers between visible sections */
+      var prevEl = null;
+      visibleSections.forEach(function(vs, idx) {
+        if (prevEl) {
+          var divider = document.createElement('div');
+          divider.className = 'le-divider';
+          divider.innerHTML = '<button class="le-divider-btn" title="Add section here"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add Section</span></button>';
+          pageEl.insertBefore(divider, vs.el);
+          var dividerBtn = divider.querySelector('.le-divider-btn');
+          dividerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            _openDividerMenu(dividerBtn, page, idx);
+          });
+        }
+        prevEl = vs.el;
+      });
+
+      /* Add divider after last visible section */
+      if (prevEl) {
+        var lastDivider = document.createElement('div');
+        lastDivider.className = 'le-divider';
+        lastDivider.innerHTML = '<button class="le-divider-btn" title="Add section here"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add Section</span></button>';
+        var lastChild = prevEl.nextSibling;
+        pageEl.insertBefore(lastDivider, lastChild);
+        var lastDividerBtn = lastDivider.querySelector('.le-divider-btn');
+        lastDividerBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          _openDividerMenu(lastDividerBtn, page, visibleSections.length);
+        });
+      }
+
+      /* Render badges on visible sections */
+      visibleSections.forEach(function(vs) {
+        var el = vs.el;
+        var sec = vs.sec;
         el.style.position = 'relative';
         var badge = document.createElement('div');
         badge.className = 'le-section-badge';
         var label = _getLabel(page, sec.id);
-        var html = '<span class="le-sec-name">' + label + '</span>';
+        var canSwitch = !!SEC_SWITCH_MAP[page];
+        var html = '<button class="le-sec-name' + (canSwitch ? ' le-sec-name-clickable' : '') + '" title="Click to switch type">' + label + (canSwitch ? ' <svg class="le-sd-caret" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>' : '') + '</button>';
         if (hasOrder && SEC_TO_ORDER[page] && SEC_TO_ORDER[page][sec.id]) {
           html += '<button class="le-sec-up" title="Move up">&#9650;</button>'
             + '<button class="le-sec-down" title="Move down">&#9660;</button>';
@@ -588,6 +779,15 @@ App.register('liveEdit', (() => {
         badge.innerHTML = html;
 
         badge.addEventListener('click', function(e) { e.stopPropagation(); });
+
+        if (canSwitch) {
+          var nameBtn = badge.querySelector('.le-sec-name');
+          nameBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            _openSwitchDropdown(nameBtn, page, sec.id);
+          });
+        }
+
         badge.querySelector('.le-sec-remove').addEventListener('click', function(e) {
           e.stopPropagation();
           data.toggleSection(page, sec.id);
@@ -601,69 +801,31 @@ App.register('liveEdit', (() => {
         el.appendChild(badge);
       });
 
-      var hidden = sections.filter(function(s) { return !data.isSection(page, s.id); });
-      if (hidden.length) this._showAddToggle(page, hidden);
+      /* Show hidden sections in a bottom bar */
+      if (hiddenSections.length) this._showHiddenBar(page, hiddenSections);
     },
     _removeOverlays() {
-      document.querySelectorAll('.le-section-badge').forEach(function(el) { el.remove(); });
+      document.querySelectorAll('.le-section-badge, .le-divider, .le-hidden-bar').forEach(function(el) { el.remove(); });
     },
-    _removeAddPanel() {
-      if (_addPanel) { _addPanel.remove(); _addPanel = null; }
-      if (_addToggle) { _addToggle.remove(); _addToggle = null; }
-      if (_panelCloseHandler) {
-        document.removeEventListener('click', _panelCloseHandler);
-        _panelCloseHandler = null;
-      }
-    },
-    _showAddToggle(page, hidden) {
-      var self = this;
-      if (_addToggle) _addToggle.remove();
-      _addToggle = document.createElement('button');
-      _addToggle.className = 'le-add-toggle';
-      _addToggle.textContent = '+';
-      _addToggle.title = 'Add Section';
-      _addToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        self._toggleAddPanel(page, hidden);
-      });
-      document.body.appendChild(_addToggle);
-    },
-    _toggleAddPanel(page, hidden) {
-      if (_addPanel) {
-        _addPanel.remove();
-        _addPanel = null;
-        if (_panelCloseHandler) {
-          document.removeEventListener('click', _panelCloseHandler);
-          _panelCloseHandler = null;
-        }
-        return;
-      }
-      _addPanel = document.createElement('div');
-      _addPanel.className = 'le-add-panel';
-      var html = '<div class="le-add-panel-title">Hidden Sections</div>';
+    _showHiddenBar(page, hidden) {
+      var existing = document.querySelector('.le-hidden-bar');
+      if (existing) existing.remove();
+      var bar = document.createElement('div');
+      bar.className = 'le-hidden-bar';
+      var html = '<span class="le-hb-label">Hidden:</span>';
       hidden.forEach(function(sec) {
         var label = _getLabel(page, sec.id);
-        html += '<div class="le-add-item" data-le-add-section="' + sec.id + '">'
-          + '<span class="le-add-item-name">' + label + '</span>'
-          + '<span class="le-add-item-plus">+</span></div>';
+        html += '<button class="le-hb-item" data-le-hidden-id="' + sec.id + '">' + label + ' <span class="le-hb-plus">+</span></button>';
       });
-      _addPanel.innerHTML = html;
-      _addPanel.addEventListener('click', function(e) { e.stopPropagation(); });
-      _addPanel.querySelectorAll('.le-add-item').forEach(function(item) {
-        item.addEventListener('click', function(e) {
+      bar.innerHTML = html;
+      bar.addEventListener('click', function(e) { e.stopPropagation(); });
+      bar.querySelectorAll('.le-hb-item').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
           e.stopPropagation();
-          _addSectionBack(page, item.dataset.leAddSection);
+          _addSectionBack(page, btn.dataset.leHiddenId);
         });
       });
-      document.body.appendChild(_addPanel);
-      _panelCloseHandler = function(ev) {
-        if (!_addPanel || (!_addPanel.contains(ev.target) && ev.target !== _addToggle && !_addToggle.contains(ev.target))) {
-          _addPanel.remove(); _addPanel = null;
-          document.removeEventListener('click', _panelCloseHandler);
-          _panelCloseHandler = null;
-        }
-      };
-      setTimeout(function() { document.addEventListener('click', _panelCloseHandler); }, 0);
+      document.body.appendChild(bar);
     },
     check() {
       if (sessionStorage.getItem('yrs-live-edit') === '1' && App.use('auth').check()) {

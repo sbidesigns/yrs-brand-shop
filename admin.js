@@ -680,8 +680,8 @@ App.use('router').on('admin', (app) => {
     const desc = document.createElement('div');
     desc.className = 'le-hero-desc';
     desc.textContent = isActive
-      ? 'Navigate the site and click any highlighted element to edit its text. Changes save permanently.'
-      : 'Click any text element directly on the site to edit it. Pre-seeded elements are highlighted. Unseeded elements get auto-assigned keys.';
+      ? 'Navigate the site and click any highlighted element to edit its text. Click section names to switch types. Use + dividers to add sections.'
+      : 'Click any text element to edit it. Click section name badges to switch section types. Use the + dividers between sections to add new ones. Changes save permanently.';
     hero.appendChild(desc);
 
     container.appendChild(hero);
@@ -727,7 +727,9 @@ App.use('router').on('admin', (app) => {
       features.className = 'le-features';
       const featureList = [
         ['Click to Edit', 'Click any text element on any page to change it instantly'],
-        ['Auto Key Assignment', 'Elements without edit keys get auto-assigned ones'],
+        ['Switch Sections', 'Click a section name badge to open a dropdown and swap it for a different section type'],
+        ['Inline Add Dividers', 'Dashed + buttons appear between every section — click to add a new section at that exact position'],
+        ['Smart Insert', 'Hidden sections appear in a bottom bar; already-visible sections show as "Visible" when adding'],
         ['Permanent Saves', 'All changes persist in browser storage across sessions'],
         ['Full Navigation', 'Edit across all pages — shop, products, cart, wishlist']
       ];

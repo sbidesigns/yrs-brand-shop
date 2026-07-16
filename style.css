@@ -1371,6 +1371,34 @@ body.live-edit-active #app > .page { padding-bottom: 60px; }
 .le-section-badge .le-sec-name {
   pointer-events: none;
   white-space: nowrap;
+  background: none;
+  border: none;
+  color: #fff;
+  font: inherit;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: default;
+  line-height: 1;
+}
+.le-section-badge .le-sec-name-clickable {
+  pointer-events: auto;
+  cursor: pointer;
+  padding-right: 2px;
+  border-radius: 2px;
+  transition: background 0.12s ease;
+}
+.le-section-badge .le-sec-name-clickable:hover {
+  background: rgba(255,255,255,0.12);
+}
+.le-sd-caret {
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+.le-section-badge .le-sec-name-clickable:hover .le-sd-caret {
+  opacity: 1;
 }
 .le-section-badge .le-sec-remove,
 .le-section-badge .le-sec-up,
@@ -1394,88 +1422,191 @@ body.live-edit-active #app > .page { padding-bottom: 60px; }
 .le-section-badge .le-sec-up:hover,
 .le-section-badge .le-sec-down:hover { background: rgba(255,255,255,0.3); }
 
-/* ── Live Edit: Add Section Toggle ── */
-.le-add-toggle {
+/* ── Live Edit: Switch Dropdown ── */
+.le-switch-dropdown {
   position: fixed;
-  bottom: 60px;
-  right: 16px;
-  z-index: 54;
-  width: 40px;
-  height: 40px;
-  background: var(--fg);
-  color: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  font-weight: 300;
-  cursor: pointer;
-  border: none;
-  border-radius: 50%;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  font-family: var(--sans);
-}
-.le-add-toggle:hover {
-  transform: scale(1.08);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-}
-
-/* ── Live Edit: Add Section Panel ── */
-.le-add-panel {
-  position: fixed;
-  bottom: 108px;
-  right: 16px;
-  z-index: 55;
-  background: rgba(10,10,10,0.92);
+  z-index: 200;
+  background: rgba(12,12,12,0.95);
   color: #fff;
-  padding: 14px 16px;
-  border-radius: 4px;
-  min-width: 190px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  padding: 10px 0;
+  border-radius: 6px;
+  min-width: 200px;
+  max-width: 260px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   font-family: var(--sans);
-  animation: lePanelIn 0.15s var(--ease);
+  animation: leSdIn 0.15s var(--ease);
 }
-@keyframes lePanelIn {
-  from { opacity: 0; transform: translateY(6px); }
+@keyframes leSdIn {
+  from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.le-add-panel-title {
-  font-size: 0.5rem;
+.le-sd-title {
+  font-size: 0.45rem;
   font-weight: 600;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  margin-bottom: 10px;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.35);
+  padding: 0 14px 8px;
 }
-.le-add-item {
+.le-sd-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 0;
+  padding: 9px 14px;
   cursor: pointer;
-  transition: opacity 0.12s ease;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  transition: background 0.1s ease;
 }
-.le-add-item:last-child { border-bottom: none; }
-.le-add-item:hover { opacity: 0.7; }
-.le-add-item-name {
-  font-size: 0.65rem;
+.le-sd-item:hover {
+  background: rgba(255,255,255,0.08);
+}
+.le-sd-item.le-sd-current {
+  cursor: default;
+  opacity: 0.5;
+}
+.le-sd-item.le-sd-current:hover {
+  background: transparent;
+}
+.le-sd-item.le-sd-inactive {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.le-sd-item.le-sd-inactive:hover {
+  background: transparent;
+}
+.le-sd-item-name {
+  font-size: 0.6rem;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.le-add-item-plus {
-  width: 20px;
-  height: 20px;
+.le-sd-item-badge {
+  font-size: 0.45rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+}
+.le-sd-item.le-sd-current .le-sd-item-badge {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.3);
+}
+.le-sd-badge-hidden {
+  background: rgba(255,80,80,0.12);
+  color: rgba(255,120,120,0.7);
+}
+.le-sd-badge-active {
+  background: rgba(80,255,120,0.1);
+  color: rgba(120,255,150,0.7);
+}
+
+/* ── Live Edit: Inline Add-Section Dividers ── */
+.le-divider {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.12);
-  border-radius: 2px;
-  font-size: 0.75rem;
+  padding: 6px 0;
+  position: relative;
+  z-index: 40;
+  pointer-events: none;
+}
+.le-divider-btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(10,10,10,0.75);
+  color: rgba(255,255,255,0.5);
+  border: 1px dashed rgba(255,255,255,0.15);
+  border-radius: 4px;
+  padding: 5px 14px;
+  font-size: 0.45rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--sans);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.le-divider-btn svg {
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+.le-divider-btn:hover {
+  background: rgba(10,10,10,0.9);
+  color: #fff;
+  border-color: rgba(255,255,255,0.35);
+}
+.le-divider-btn:hover svg {
+  opacity: 1;
+}
+
+/* ── Live Edit: Hidden Sections Bottom Bar ── */
+.le-hidden-bar {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 55;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10,10,10,0.9);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  font-family: var(--sans);
+  animation: leBarIn 0.2s var(--ease);
+}
+@keyframes leBarIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.le-hb-label {
+  font-size: 0.4rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-right: 4px;
+}
+.le-hb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: 3px;
+  padding: 4px 10px;
+  font-size: 0.5rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  font-family: var(--sans);
+}
+.le-hb-item:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+.le-hb-plus {
+  font-size: 0.7rem;
   font-weight: 400;
+  opacity: 0.6;
+}
+.le-hb-item:hover .le-hb-plus {
+  opacity: 1;
 }
 
 /* ── Inline Editor ── */
