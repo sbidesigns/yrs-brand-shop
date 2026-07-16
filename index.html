@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YRS Brand — Shop</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="nav" role="navigation">
+  <a class="nav-brand" href="/shop" data-edit-key="nav.brand">YRS<span class="reg">&reg;</span></a>
+  <div class="nav-links">
+    <a href="/shop" data-nav="/shop">Shop</a>
+    <a href="/wishlist" data-nav="/wishlist">Wishlist</a>
+    <a href="/cart" data-nav="/cart">Cart</a>
+    <div class="nav-wish" data-nav="/wishlist" role="button" aria-label="Wishlist">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+      <span class="cart-badge" id="wishBadge">0</span>
+    </div>
+    <div class="nav-cart" data-nav="/cart" role="button" aria-label="Cart">
+      <svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </div>
+  </div>
+</nav>
+
+<main id="app" role="main"></main>
+<div class="toast-container" id="toasts" aria-live="polite"></div>
+
+<script src="core.js"></script>
+<script src="ui.js"></script>
+<script src="admin.js"></script>
+<script>
+/* fallback routes registered LAST so all module routes take priority */
+App.use('router').on('^$', (app) => {
+  App.use('router').go('/shop');
+});
+App.use('router').on('.*', (app) => {
+  app.innerHTML = '<div class="not-found page"><h1>404</h1><p>Page not found</p><a href="/shop" data-nav="/shop">Back to Shop</a></div>';
+});
+/* boot */
+App.use('store').onChange(() => App.use('badge').update());
+App.use('wishlist').onChange(() => App.use('badge').update());
+App.use('badge').update();
+App.use('auth').check();
+App.use('content').load();
+App.use('data').load().then(() => {
+  App.use('content').apply(document);
+  App.use('router').start();
+  App.use('adminAccess').init();
+  App.use('liveEdit').check();
+});
+</script>
+</body>
+</html>

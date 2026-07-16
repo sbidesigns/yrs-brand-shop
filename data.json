@@ -1,0 +1,516 @@
+{
+  "product_types": [
+    {
+      "id": "merchandise",
+      "name": "Merchandise",
+      "cta": "Add to Cart"
+    },
+    {
+      "id": "digital",
+      "name": "Digital Download",
+      "cta": "Buy Now"
+    },
+    {
+      "id": "physical_cd",
+      "name": "Physical CD",
+      "cta": "Add to Cart"
+    },
+    {
+      "id": "vinyl",
+      "name": "Vinyl",
+      "cta": "Pre-Order"
+    },
+    {
+      "id": "lifestyle",
+      "name": "Lifestyle",
+      "cta": "Add to Cart"
+    },
+    {
+      "id": "bundle",
+      "name": "Bundle",
+      "cta": "Add to Cart"
+    }
+  ],
+  "categories": [
+    {
+      "slug": "essentials",
+      "name": "Essentials"
+    },
+    {
+      "slug": "accessories",
+      "name": "Accessories"
+    },
+    {
+      "slug": "lifestyle",
+      "name": "Lifestyle"
+    },
+    {
+      "slug": "music",
+      "name": "Music"
+    }
+  ],
+  "settings": {
+    "auto_relate": true,
+    "relate_by": "category",
+    "related_count": 4
+  },
+  "products": [
+    {
+      "id": 1,
+      "slug": "classic-tee",
+      "name": "Classic Tee",
+      "image": "products/classic-tee.png",
+      "category": "essentials",
+      "type": "merchandise",
+      "price": 45,
+      "color": "#e8e8e8",
+      "desc": "Heavyweight 220gsm cotton. Boxy cut. Minimal branding.",
+      "related": [
+        "oversized-hoodie",
+        "crewneck-sweat",
+        "structured-cap"
+      ],
+      "upsell": "oversized-hoodie",
+      "upsell_msg": "Complete the look",
+      "options": [
+        {
+          "label": "S",
+          "value": "s",
+          "price_mod": 0
+        },
+        {
+          "label": "M",
+          "value": "m",
+          "price_mod": 0
+        },
+        {
+          "label": "L",
+          "value": "l",
+          "price_mod": 0
+        },
+        {
+          "label": "XL",
+          "value": "xl",
+          "price_mod": 5
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "slug": "oversized-hoodie",
+      "name": "Oversized Hoodie",
+      "image": "products/oversized-hoodie.png",
+      "category": "essentials",
+      "type": "merchandise",
+      "price": 120,
+      "color": "#1a1a1a",
+      "desc": "400gsm fleece. Dropped shoulders. Ribbed cuffs.",
+      "related": [
+        "classic-tee",
+        "crewneck-sweat",
+        "woven-beanie"
+      ],
+      "upsell": "crewneck-sweat",
+      "upsell_msg": "Layer up",
+      "options": [
+        {
+          "label": "S",
+          "value": "s",
+          "price_mod": 0
+        },
+        {
+          "label": "M",
+          "value": "m",
+          "price_mod": 0
+        },
+        {
+          "label": "L",
+          "value": "l",
+          "price_mod": 0
+        },
+        {
+          "label": "XL",
+          "value": "xl",
+          "price_mod": 5
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "slug": "structured-cap",
+      "name": "Structured Cap",
+      "image": "products/structured-cap.png",
+      "category": "accessories",
+      "type": "merchandise",
+      "price": 35,
+      "color": "#f5f5f0",
+      "desc": "Six-panel. Embroidered logo. Adjustable strap.",
+      "related": [
+        "woven-beanie",
+        "canvas-tote"
+      ],
+      "upsell": "woven-beanie",
+      "upsell_msg": "Match your fit",
+      "options": []
+    },
+    {
+      "id": 4,
+      "slug": "canvas-tote",
+      "name": "Canvas Tote",
+      "image": "products/canvas-tote.png",
+      "category": "accessories",
+      "type": "lifestyle",
+      "price": 55,
+      "color": "#d4c9a8",
+      "desc": "18oz waxed canvas. Interior pocket. Flat bottom.",
+      "related": [
+        "signature-candle",
+        "art-print-no1",
+        "structured-cap"
+      ],
+      "upsell": "signature-candle",
+      "upsell_msg": "Elevate your everyday",
+      "options": []
+    },
+    {
+      "id": 5,
+      "slug": "signature-candle",
+      "name": "Signature Candle",
+      "image": "products/signature-candle.png",
+      "category": "lifestyle",
+      "type": "lifestyle",
+      "price": 40,
+      "color": "#2c2418",
+      "desc": "Soy wax. Cedar & vetiver. 60hr burn time.",
+      "related": [
+        "canvas-tote",
+        "art-print-no1"
+      ],
+      "upsell": "canvas-tote",
+      "upsell_msg": "The full lifestyle",
+      "options": []
+    },
+    {
+      "id": 6,
+      "slug": "art-print-no1",
+      "name": "Art Print No.1",
+      "image": "products/art-print-no1.png",
+      "category": "lifestyle",
+      "type": "lifestyle",
+      "price": 65,
+      "color": "#c8c4be",
+      "desc": "Archival gicl\u00e9e on 310gsm cotton rag. 16x20\".",
+      "related": [
+        "canvas-tote",
+        "signature-candle"
+      ],
+      "upsell": "",
+      "upsell_msg": "",
+      "options": [
+        {
+          "label": "16x20\"",
+          "value": "16x20",
+          "price_mod": 0
+        },
+        {
+          "label": "24x30\"",
+          "value": "24x30",
+          "price_mod": 30
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "slug": "crewneck-sweat",
+      "name": "Crewneck Sweat",
+      "image": "products/crewneck-sweat.png",
+      "category": "essentials",
+      "type": "merchandise",
+      "price": 85,
+      "color": "#3a3632",
+      "desc": "350gsm french terry. Relaxed fit. Side seam detail.",
+      "related": [
+        "classic-tee",
+        "oversized-hoodie",
+        "woven-beanie"
+      ],
+      "upsell": "oversized-hoodie",
+      "upsell_msg": "Go oversized",
+      "options": [
+        {
+          "label": "S",
+          "value": "s",
+          "price_mod": 0
+        },
+        {
+          "label": "M",
+          "value": "m",
+          "price_mod": 0
+        },
+        {
+          "label": "L",
+          "value": "l",
+          "price_mod": 0
+        },
+        {
+          "label": "XL",
+          "value": "xl",
+          "price_mod": 5
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "slug": "woven-beanie",
+      "name": "Woven Beanie",
+      "image": "products/woven-beanie.png",
+      "category": "accessories",
+      "type": "merchandise",
+      "price": 30,
+      "color": "#1a1a1a",
+      "desc": "Ribbed knit. Fold-over cuff. One size.",
+      "related": [
+        "structured-cap",
+        "classic-tee"
+      ],
+      "upsell": "structured-cap",
+      "upsell_msg": "Top it off",
+      "options": []
+    },
+    {
+      "id": 9,
+      "slug": "debut-album-digital",
+      "name": "Debut Album",
+      "image": "products/debut-album-digital.png",
+      "category": "music",
+      "type": "digital",
+      "price": 10,
+      "color": "#1a1a2e",
+      "desc": "12 tracks. Runtime 42min. Includes digital booklet.",
+      "related": [
+        "debut-album-cd",
+        "debut-album-vinyl"
+      ],
+      "upsell": "debut-album-cd",
+      "upsell_msg": "Get the physical CD too",
+      "options": [
+        {
+          "label": "MP3 320",
+          "value": "mp3_320",
+          "price_mod": 0
+        },
+        {
+          "label": "WAV",
+          "value": "wav",
+          "price_mod": 2
+        },
+        {
+          "label": "FLAC",
+          "value": "flac",
+          "price_mod": 4
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "slug": "debut-album-cd",
+      "name": "Debut Album (CD)",
+      "image": "products/debut-album-cd.png",
+      "category": "music",
+      "type": "physical_cd",
+      "price": 15,
+      "color": "#2a2a3e",
+      "desc": "12 tracks. Jewel case with 8-page booklet.",
+      "related": [
+        "debut-album-digital",
+        "debut-album-vinyl"
+      ],
+      "upsell": "debut-album-vinyl",
+      "upsell_msg": "Upgrade to vinyl",
+      "options": [
+        {
+          "label": "Standard",
+          "value": "standard",
+          "price_mod": 0
+        },
+        {
+          "label": "Signed",
+          "value": "signed",
+          "price_mod": 5
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "slug": "debut-album-vinyl",
+      "name": "Debut Album (Vinyl)",
+      "image": "products/debut-album-vinyl.png",
+      "category": "music",
+      "type": "vinyl",
+      "price": 30,
+      "color": "#3a2a4e",
+      "desc": "12\" LP. 180g pressed. Gatefold sleeve. Includes digital download.",
+      "related": [
+        "debut-album-cd",
+        "yrs-bundle-01"
+      ],
+      "upsell": "yrs-bundle-01",
+      "upsell_msg": "Get the full bundle",
+      "options": [
+        {
+          "label": "Black",
+          "value": "black",
+          "price_mod": 0
+        },
+        {
+          "label": "Limited Color",
+          "value": "color",
+          "price_mod": 10
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "slug": "yrs-bundle-01",
+      "name": "YRS Starter Bundle",
+      "image": "products/yrs-bundle-01.png",
+      "category": "music",
+      "type": "bundle",
+      "price": 50,
+      "color": "#0a0a0a",
+      "desc": "Debut Album (CD) + Classic Tee + Structured Cap. Save $30.",
+      "related": [
+        "debut-album-vinyl",
+        "debut-album-cd"
+      ],
+      "upsell": "debut-album-vinyl",
+      "upsell_msg": "Add vinyl to complete the collection",
+      "options": []
+    }
+  ],
+  "share": [
+    {
+      "id": "x",
+      "name": "X",
+      "active": true
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram",
+      "active": true
+    },
+    {
+      "id": "pinterest",
+      "name": "Pinterest",
+      "active": true
+    },
+    {
+      "id": "facebook",
+      "name": "Facebook",
+      "active": true
+    },
+    {
+      "id": "whatsapp",
+      "name": "WhatsApp",
+      "active": true
+    },
+    {
+      "id": "copy",
+      "name": "Copy Link",
+      "active": true
+    }
+  ],
+  "sections": {
+    "shop": {
+      "hero": true,
+      "categories": true,
+      "featured": true,
+      "products": true,
+      "carousel": true,
+      "mailing": true
+    },
+    "product": {
+      "breadcrumb": true,
+      "image": true,
+      "info": true,
+      "share": true,
+      "wishlist": true,
+      "upsell": true,
+      "related": true
+    },
+    "cart": {
+      "items": true,
+      "upsells": true,
+      "total": true,
+      "checkout": true
+    },
+    "wishlist": {
+      "items": true,
+      "actions": true
+    }
+  },
+  "checkout_upsells": [
+    {
+      "id": "cu-1",
+      "product_slug": "woven-beanie",
+      "discount_type": "amount",
+      "discount_value": 5,
+      "message": "Complete your order",
+      "active": true,
+      "priority": 1
+    },
+    {
+      "id": "cu-2",
+      "product_slug": "signature-candle",
+      "discount_type": "percent",
+      "discount_value": 15,
+      "message": "Treat yourself",
+      "active": true,
+      "priority": 2
+    }
+  ],
+  "heroes": [
+    {
+      "id": "hero-main",
+      "style": "full",
+      "title": "Shop",
+      "subtitle": "Curated Essentials",
+      "scroll_text": "Scroll",
+      "active": true,
+      "page": "shop"
+    }
+  ],
+  "carousels": [
+    {
+      "id": "car-1",
+      "style": "metro",
+      "title": "All Products",
+      "product_slugs": [],
+      "show_all": true,
+      "max_items": 0,
+      "active": true,
+      "page": "shop"
+    }
+  ],
+  "mailing_lists": [
+    {
+      "id": "ml-1",
+      "style": "inline",
+      "heading": "Stay in the Loop",
+      "subheading": "Early access, exclusive drops, and behind-the-scenes.",
+      "placeholder": "Your email",
+      "button_text": "Subscribe",
+      "active": true,
+      "page": "shop"
+    }
+  ],
+  "section_order": {
+    "shop": [
+      "categories",
+      "featured",
+      "carousels",
+      "products",
+      "mailing"
+    ]
+  }
+}
