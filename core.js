@@ -730,34 +730,57 @@ App.register('liveEdit', (() => {
         visibleSections.push({ sec: sec, el: el });
       });
 
-      /* Insert add-section dividers between visible sections */
-      var prevEl = null;
-      visibleSections.forEach(function(vs, idx) {
-        if (prevEl) {
+      /* Find the top-level section wrapper (direct child of .page) for each found el */
+      function _topLevelChild(el) {
+        var cur = el;
+        while (cur && cur.parentElement && cur.parentElement !== pageEl) {
+          cur = cur.parentElement;
+        }
+        return (cur && cur.parentElement === pageEl) ? cur : null;
+      }
+
+      /* Deduplicate top-level containers */
+      var seenTops = [];
+      var orderedTops = [];
+      visibleSections.forEach(function(vs) {
+        var top = _topLevelChild(vs.el);
+        if (top && seenTops.indexOf(top) === -1) {
+          seenTops.push(top);
+          orderedTops.push({ sec: vs.sec, el: vs.el, top: top });
+        }
+      });
+
+      /* Insert add-section dividers between top-level sections */
+      var prevTop = null;
+      orderedTops.forEach(function(vs, idx) {
+        if (prevTop && prevTop !== vs.top) {
           var divider = document.createElement('div');
           divider.className = 'le-divider';
           divider.innerHTML = '<button class="le-divider-btn" title="Add section here"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add Section</span></button>';
-          pageEl.insertBefore(divider, vs.el);
+          pageEl.insertBefore(divider, vs.top);
           var dividerBtn = divider.querySelector('.le-divider-btn');
           dividerBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             _openDividerMenu(dividerBtn, page, idx);
           });
         }
-        prevEl = vs.el;
+        prevTop = vs.top;
       });
 
-      /* Add divider after last visible section */
-      if (prevEl) {
+      /* Add divider after last visible top-level section */
+      if (prevTop) {
         var lastDivider = document.createElement('div');
         lastDivider.className = 'le-divider';
         lastDivider.innerHTML = '<button class="le-divider-btn" title="Add section here"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add Section</span></button>';
-        var lastChild = prevEl.nextSibling;
-        pageEl.insertBefore(lastDivider, lastChild);
+        if (prevTop.nextSibling) {
+          pageEl.insertBefore(lastDivider, prevTop.nextSibling);
+        } else {
+          pageEl.appendChild(lastDivider);
+        }
         var lastDividerBtn = lastDivider.querySelector('.le-divider-btn');
         lastDividerBtn.addEventListener('click', function(e) {
           e.stopPropagation();
-          _openDividerMenu(lastDividerBtn, page, visibleSections.length);
+          _openDividerMenu(lastDividerBtn, page, orderedTops.length);
         });
       }
 
