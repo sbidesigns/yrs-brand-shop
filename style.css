@@ -91,7 +91,7 @@ img { display: block; max-width: 100%; }
 main { padding-top: calc(var(--nav-h) + var(--grid-gap) + 4px); min-height: 100dvh; }
 
 /* ── Page Transitions ── */
-.page { animation: pageIn 0.45s var(--ease) both; overflow-x: hidden; max-width: 100%; }
+.page { width: 94%; max-width: 1000px; margin: auto; animation: pageIn 0.45s var(--ease) both; overflow-x: hidden; }
 @keyframes pageIn {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
@@ -1608,7 +1608,20 @@ body.live-edit-active #app > .page { padding-bottom: 60px; }
   .detail-image {
     aspect-ratio: 1;
     max-width: none;
+    max-height: 450px;
     padding-top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .detail-image .product-img {
+    position: relative;
+    inset: auto;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
   }
   .detail-info {
     padding: 24px 16px 100px;
