@@ -47,9 +47,11 @@ img { display: block; max-width: 100%; }
 .nav-brand {
   font-family: var(--serif);
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 4rem;
   letter-spacing: -0.02em;
   cursor: pointer;
+  position: relative;
+  top: 2px;
 }
 .nav-brand .reg { font-size: 0.4em; position: relative; top: -0.3em; left: 0.02em; opacity: 0.5; }
 .nav-links { display: flex; gap: clamp(16px, 3vw, 32px); align-items: center; }
@@ -498,7 +500,7 @@ main { padding-top: calc(var(--nav-h) + var(--grid-gap) + 4px); min-height: 100d
 }
 .detail-image:has(.product-img) { opacity: 1; }
 .detail-info {
-  padding: clamp(32px, 5vw, 64px);
+  padding: clamp(32px, 4vw, 64px);
   max-width: 420px;
   margin: 0 auto;
   display: flex; flex-direction: column; justify-content: center;
