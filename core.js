@@ -464,6 +464,30 @@ App.register('liveEdit', (() => {
     ]
   };
 
+  /* Style variants per section type */
+  const SEC_STYLES = {
+    hero: [
+      { id: 'full', label: 'Full' },
+      { id: 'split', label: 'Split' },
+      { id: 'minimal', label: 'Minimal' },
+      { id: 'accent', label: 'Accent Bar' },
+      { id: 'centered', label: 'Centered' },
+      { id: 'statement', label: 'Statement' }
+    ],
+    carousel: [
+      { id: 'metro', label: 'Metro Grid' },
+      { id: 'scroll', label: 'Horizontal Scroll' },
+      { id: 'minimal', label: 'Minimal Scroll' },
+      { id: 'compact', label: 'Compact Strip' }
+    ],
+    mailing: [
+      { id: 'inline', label: 'Inline' },
+      { id: 'banner', label: 'Banner' },
+      { id: 'minimal', label: 'Minimal' },
+      { id: 'full', label: 'Full Width' }
+    ]
+  };
+
   function _detectPage() {
     const h = location.hash.replace(/^#\//, '');
     if (h === '' || h === 'shop') return 'shop';
@@ -597,6 +621,43 @@ App.register('liveEdit', (() => {
     App.use('router').navigate(location.hash.replace('#', '') || '/shop');
   }
 
+  /* Get the current style of a section's first data entry */
+  function _getCurrentStyle(page, secId) {
+    var data = App.use('data');
+    var all = data.getAll();
+    if (secId === 'hero') {
+      var heroes = (all.heroes || []).filter(function(h) { return h.page === page && h.active !== false; });
+      return heroes.length ? heroes[0].style : 'full';
+    }
+    if (secId === 'carousel') {
+      var carousels = (all.carousels || []).filter(function(c) { return c.page === page && c.active !== false; });
+      return carousels.length ? carousels[0].style : 'metro';
+    }
+    if (secId === 'mailing') {
+      var mls = (all.mailing_lists || []).filter(function(m) { return m.page === page && m.active !== false; });
+      return mls.length ? mls[0].style : 'inline';
+    }
+    return null;
+  }
+
+  /* Set the style on a section's first data entry */
+  function _setSectionStyle(page, secId, newStyle) {
+    var data = App.use('data');
+    var all = data.getAll();
+    var arr = null;
+    if (secId === 'hero') arr = all.heroes;
+    else if (secId === 'carousel') arr = all.carousels;
+    else if (secId === 'mailing') arr = all.mailing_lists;
+    if (!arr) return;
+    var entry = arr.find(function(e) { return e.page === page && e.active !== false; });
+    if (entry) {
+      entry.style = newStyle;
+      data._persist();
+    }
+    _closeDropdown();
+    App.use('router').navigate(location.hash.replace('#', '') || '/shop');
+  }
+
   function _closeDropdown() {
     if (_openDropdown) { _openDropdown.remove(); _openDropdown = null; }
     if (_dropdownCloseHandler) {
@@ -610,7 +671,26 @@ App.register('liveEdit', (() => {
     var dd = document.createElement('div');
     dd.className = 'le-switch-dropdown';
     var options = SEC_SWITCH_MAP[page] || [];
-    var html = '<div class="le-sd-title">Switch Section Type</div>';
+    var styles = SEC_STYLES[currentSecId] || [];
+    var currentStyle = _getCurrentStyle(page, currentSecId);
+    var html = '';
+
+    /* Style variants section (if available) */
+    if (styles.length) {
+      html += '<div class="le-sd-title">Style Variant</div>';
+      styles.forEach(function(s) {
+        var isCur = s.id === currentStyle;
+        var cls = 'le-sd-item' + (isCur ? ' le-sd-current' : '');
+        html += '<div class="' + cls + '" data-le-style-to="' + s.id + '">'
+          + '<span class="le-sd-item-name">' + s.label + '</span>'
+          + (isCur ? '<span class="le-sd-item-badge">Current</span>' : '<span class="le-sd-item-badge">Apply</span>')
+          + '</div>';
+      });
+      html += '<div class="le-sd-divider"></div>';
+    }
+
+    /* Section type switching */
+    html += '<div class="le-sd-title">Switch Section Type</div>';
     options.forEach(function(opt) {
       var isCurrent = opt.id === currentSecId;
       var isActive = App.use('data').isSection(page, opt.id);
@@ -625,17 +705,25 @@ App.register('liveEdit', (() => {
     });
     dd.innerHTML = html;
     dd.addEventListener('click', function(e) { e.stopPropagation(); });
-    dd.querySelectorAll('.le-sd-item:not(.le-sd-current)').forEach(function(item) {
+
+    /* Wire up style switching */
+    dd.querySelectorAll('[data-le-style-to]').forEach(function(item) {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        _setSectionStyle(page, currentSecId, item.dataset.leStyleTo);
+      });
+    });
+
+    /* Wire up type switching */
+    dd.querySelectorAll('.le-sd-item[data-le-switch-to]').forEach(function(item) {
       item.addEventListener('click', function(e) {
         e.stopPropagation();
         var toId = item.dataset.leSwitchTo;
         if (!App.use('data').isSection(page, toId)) {
-          /* Hidden section — just add it back */
           _addSectionBack(page, toId);
           _closeDropdown();
           return;
         }
-        /* Already-active section — swap positions: remove current, place new here */
         _switchSection(page, currentSecId, toId);
       });
     });

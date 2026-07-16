@@ -296,6 +296,16 @@ App.register('components', (() => {
       el.innerHTML = '<div class="hero-accent-bar"></div>'
         + '<h1 data-edit-key="hero.' + config.id + '.title">' + (config.title || 'Shop') + '</h1>'
         + '<div class="hero-sub" data-edit-key="hero.' + config.id + '.subtitle">' + (config.subtitle || '') + '</div>';
+    } else if (style === 'centered') {
+      el.innerHTML = '<div class="hero-centered-wrap">'
+        + '<div class="hero-centered-label" data-edit-key="hero.' + config.id + '.subtitle">' + (config.subtitle || '') + '</div>'
+        + '<h1 data-edit-key="hero.' + config.id + '.title">' + (config.title || 'Shop') + '</h1>'
+        + '<div class="hero-centered-line"></div>'
+        + '</div>';
+    } else if (style === 'statement') {
+      el.innerHTML = '<div class="hero-statement-wrap">'
+        + '<h1 data-edit-key="hero.' + config.id + '.title">' + (config.title || 'Shop') + '</h1>'
+        + '</div>';
     }
 
     return el;

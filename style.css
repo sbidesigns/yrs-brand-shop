@@ -184,6 +184,58 @@ main { padding-top: calc(var(--nav-h) + var(--grid-gap) + 4px); min-height: 100d
 }
 .hero--accent h1 { font-size: clamp(2.2rem, 6vw, 5rem); letter-spacing: -0.03em; }
 
+/* Centered */
+.hero--centered {
+  text-align: center;
+  padding: clamp(48px, 8vw, 96px) clamp(16px, 4vw, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-centered-wrap {
+  max-width: 680px;
+}
+.hero-centered-label {
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.hero--centered h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.hero-centered-line {
+  width: 40px;
+  height: 1px;
+  background: var(--fg);
+  margin: 20px auto 0;
+  opacity: 0.3;
+}
+
+/* Statement */
+.hero--statement {
+  text-align: left;
+  padding: clamp(40px, 6vw, 80px) clamp(16px, 4vw, 48px);
+  border-bottom: 1px solid transparent;
+}
+.hero-statement-wrap {
+  max-width: 100%;
+}
+.hero--statement h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  max-width: 900px;
+}
+
 /* ── Category Cards ── */
 .cat-card {
   grid-column: span 2; aspect-ratio: 16/10;
@@ -1449,6 +1501,11 @@ body.live-edit-active #app > .page { padding-bottom: 60px; }
   text-transform: uppercase;
   color: rgba(255,255,255,0.35);
   padding: 0 14px 8px;
+}
+.le-sd-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 6px 14px 8px;
 }
 .le-sd-item {
   display: flex;
