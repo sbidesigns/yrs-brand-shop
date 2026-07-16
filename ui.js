@@ -223,17 +223,20 @@ App.register('components', (() => {
 
     wrap.appendChild(track);
 
-    /* Dot indicators */
+    /* Dot indicators — one dot per slide page, not per item */
     if (style === 'metro' && products.length > 1) {
       const dots = document.createElement('div');
       dots.className = 'carousel-dots';
-      products.forEach((_, i) => {
+      const perView = () => window.innerWidth <= 768 ? 1 : window.innerWidth <= 1024 ? 2 : 4;
+      const numPages = () => Math.max(1, Math.ceil(products.length / perView()));
+      /* Create initial dots */
+      for (let i = 0; i < numPages(); i++) {
         const dot = document.createElement('button');
         dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
         dot.dataset.dot = i;
-        dot.setAttribute('aria-label', 'Slide ' + (i + 1));
+        dot.setAttribute('aria-label', 'Page ' + (i + 1));
         dots.appendChild(dot);
-      });
+      }
       wrap.appendChild(dots);
     }
 
@@ -243,16 +246,36 @@ App.register('components', (() => {
       const total = products.length;
       const perView = () => window.innerWidth <= 768 ? 1 : window.innerWidth <= 1024 ? 2 : 4;
       const maxIdx = () => Math.max(0, total - perView());
+      const numPages = () => Math.max(1, Math.ceil(total / perView()));
+      const currentPage = () => Math.ceil((idx + 1) / perView()) - 1;
+
+      /* Rebuild dots on resize when page count changes */
+      function rebuildDots() {
+        const dotsEl = wrap.querySelector('.carousel-dots');
+        if (!dotsEl) return;
+        const pages = numPages();
+        const cur = currentPage();
+        dotsEl.innerHTML = '';
+        for (let i = 0; i < pages; i++) {
+          const dot = document.createElement('button');
+          dot.className = 'carousel-dot' + (i === cur ? ' active' : '');
+          dot.dataset.dot = i;
+          dot.setAttribute('aria-label', 'Page ' + (i + 1));
+          dotsEl.appendChild(dot);
+        }
+        dotsEl.querySelectorAll('.carousel-dot').forEach(d => d.addEventListener('click', () => goTo(+d.dataset.dot * perView())));
+      }
 
       function goTo(newIdx) {
         idx = Math.max(0, Math.min(newIdx, maxIdx()));
         track.style.transform = 'translateX(-' + (idx * (100 / perView())) + '%)';
-        wrap.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+        var pg = currentPage();
+        wrap.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === pg));
       }
 
       prevBtn.addEventListener('click', () => goTo(idx - 1));
       nextBtn.addEventListener('click', () => goTo(idx + 1));
-      wrap.querySelectorAll('.carousel-dot').forEach(d => d.addEventListener('click', () => goTo(+d.dataset.dot)));
+      wrap.querySelectorAll('.carousel-dot').forEach(d => d.addEventListener('click', () => goTo(+d.dataset.dot * perView())));
 
       let autoTimer = setInterval(() => goTo(idx >= maxIdx() ? 0 : idx + 1), 4000);
       wrap.addEventListener('mouseenter', () => clearInterval(autoTimer));
@@ -260,7 +283,7 @@ App.register('components', (() => {
       wrap.addEventListener('touchstart', () => clearInterval(autoTimer), { passive: true });
       wrap.addEventListener('touchend', () => { autoTimer = setInterval(() => goTo(idx >= maxIdx() ? 0 : idx + 1), 4000); }, { passive: true });
 
-      window.addEventListener('resize', () => goTo(Math.min(idx, maxIdx())));
+      window.addEventListener('resize', () => { goTo(Math.min(idx, maxIdx())); rebuildDots(); });
     } else {
       /* Scroll-based carousels */
       const scrollAmt = style === 'compact' ? 180 : style === 'minimal' ? 260 : 240;
